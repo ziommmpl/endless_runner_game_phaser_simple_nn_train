@@ -128,7 +128,7 @@ var StateMain = {
 
         //log numbers
         if(auto_mode){
-            text.setText("AUTO MODE"+
+            text.setText("  AUTO MODE"+
                 " \t SCORE: " + this.points+
                 " \t DIST: "+ Math.ceil((game.width+fchild.x+100),1,0)+
                 //" \n FITNESS: "+this.fitnessvar+
@@ -136,7 +136,7 @@ var StateMain = {
                 " \t NN_OUTPUT: " + Math.round( nn_output ));
         }
         else{
-            text.setText("TRAINING"+
+            text.setText("  TRAINING"+
                 " \t SCORE: " + this.points+
                 " \t DIST: "+ Math.ceil((game.width+fchild.x+100),1,0)+
                 //" \n FITNESS: "+this.fitnessvar+
