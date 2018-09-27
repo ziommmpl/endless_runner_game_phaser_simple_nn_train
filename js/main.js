@@ -1,8 +1,8 @@
 var game;
 window.onload = function(){
 game=new Phaser.Game(640,400,Phaser.AUTO,"ph_game");
-    game.state.add("StateMain",StateMain);
-    game.state.start("StateMain");
+game.state.add("StateMain",StateMain);
+game.state.start("StateMain");
 }
 //NN
 var nn_network;
@@ -71,10 +71,17 @@ var StateMain = {
             , {font: "15px Arial", fill: "#000000", align: "left", tabs: 55 });
         text.anchor.setTo(0,0);
         text.inputEnabled = true;
-        text.inputEnabled = true;
-        text2 = game.add.text(0, game.height, "", {font: "15px Arial", fill: "#ffffff", align: "left", tabs: 55 });
-        text2.anchor.setTo(0,1);
+        speedText = game.add.text(0, game.height, "", {font: "15px Arial", fill: "#ffffff", align: "left", tabs: 55 });
+        speedText.anchor.setTo(0,1);
 
+        speedDownText = game.add.text(game.width-100, game.height, "", {font: "15px Arial", fill: "#ffffff", align: "left", tabs: 55 });
+        speedDownText.anchor.setTo(1,1);
+        speedDownText.inputEnabled = true;
+        speedUpText = game.add.text(game.width, game.height, "", {font: "15px Arial", fill: "#ffffff", align: "left", tabs: 55 });
+        speedUpText.anchor.setTo(1,1);
+        speedUpText.inputEnabled = true;
+        speedDownText.events.onInputDown.add(function () {if(timeValue>1.0){timeValue-=0.5;}}, this);
+        speedUpText.events.onInputDown.add(function () {if(timeValue<4.0){timeValue+=0.5;}}, this);
 
         //add key listener
         esckey = game.input.keyboard.addKey(Phaser.Keyboard.ESC);
@@ -89,6 +96,7 @@ var StateMain = {
         leftKey.onDown.add(function () {if(timeValue>1.0){timeValue-=0.5;}}, this);
         rightKey.onDown.add(function () {if(timeValue<4.0){timeValue+=0.5;}}, this);
         downKey.onDown.add(function () {timeValue=1.0;}, this);
+
 
         //physics engine
         game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -115,9 +123,9 @@ var StateMain = {
         }
     },
     update: function() {
+        //game time map
         game.time.desiredFps = 60/timeValue;
         game.time.slowMotion = 1/timeValue;
-
 
         game.physics.arcade.collide(this.hero, this.ground);
         game.physics.arcade.collide(this.hero, this.blocks, this.gameOver);
@@ -129,7 +137,6 @@ var StateMain = {
         if(Math.sign((game.width+fchild.x-this.hero.x))!=this.pointsbool && Math.sign((game.width+fchild.x-this.hero.x)) < 0 ){
                 this.points++;
         }
-
         this.pointsbool = Math.sign((game.width+fchild.x-this.hero.x));
 
         //if off the screen reset the blocks
@@ -146,7 +153,9 @@ var StateMain = {
                 //" \n FITNESS: "+this.fitnessvar+
                 " \t BOX_SPEED: "+wallSpeed+
                 " \t NN_OUTPUT: " + Math.round( nn_output*100 ));
-            text2.setText("  SPEED: " + (timeValue).toFixed(1)+"x");
+            speedText.setText("  SPEED: " + (timeValue).toFixed(1)+"x");
+            speedDownText.setText("SPEED-");
+            speedUpText.setText("SPEED+");
         }
         else{
             text.setStyle({font: "15px Arial", fill: "#720000", align: "left", tabs: 55 });
@@ -157,10 +166,13 @@ var StateMain = {
                 " \t BOX_SPEED: "+wallSpeed+
                 " \t OUTPUT: "+this.do_the_jump);
 
-            text2.setText("");
+            speedText.setText("");
+            speedDownText.setText("");
+            speedUpText.setText("");
         }
 
         text.events.onInputDown.add(this.pause, this);
+        // speedUpText.events.onInputDown.add(this.pause, this);
 
         //NN INPUTS
         this.box_displacement = Math.ceil((game.width+fchild.x+100),1,0);
