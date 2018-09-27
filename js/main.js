@@ -68,7 +68,6 @@ var StateMain = {
         this.clouds=game.add.tileSprite(0,-10,game.width*1.1,100,"clouds");
         this.clouds.autoScroll(-50,0);
 
-
         //ground
         this.ground=game.add.tileSprite(0,game.height*0.875,game.width,50,"grass");
         this.ground.autoScroll(-150,0);
@@ -78,8 +77,16 @@ var StateMain = {
         this.hero = game.add.sprite(game.width * .2, this.ground.y - 25, "hero",3);
 
         //text
-        text = game.add.text(0, 0, "", {font: "15px Arial", fill: "#000000", align: "left", tabs: 50 });
+        text = game.add.text(0, 0, "  MOUSE CLICK/SPACEBAR TO JUMP, TO PAUSE PRESS ESC OR TEXT HERE", {font: "15px Arial", fill: "#000000", align: "left", tabs: 55 });
         text.anchor.setTo(0,0);
+        text.inputEnabled = true;
+
+
+        //add key listener
+        esckey = game.input.keyboard.addKey(Phaser.Keyboard.ESC);
+        esckey.onDown.add(this.pause, this);
+        //space to jump
+        spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
         //physics engine
         game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -108,7 +115,6 @@ var StateMain = {
     },
     update: function() {
         game.physics.arcade.collide(this.hero, this.ground);
-
         game.physics.arcade.collide(this.hero, this.blocks, this.gameOver);
         this.fitnessvar++;
         //restart blocks
@@ -133,7 +139,7 @@ var StateMain = {
                 " \t DIST: "+ Math.ceil((game.width+fchild.x+100),1,0)+
                 //" \n FITNESS: "+this.fitnessvar+
                 " \t BOX_SPEED: "+wallSpeed+
-                " \t NN_OUTPUT: " + Math.round( nn_output ));
+                " \t NN_OUTPUT: " + Math.round( nn_output*100 ));
         }
         else{
             text.setText("  TRAINING"+
@@ -144,8 +150,6 @@ var StateMain = {
                 " \t OUTPUT: "+this.do_the_jump);
         }
 
-        //menu on text
-        text.inputEnabled = true;
         text.events.onInputDown.add(this.pause, this);
 
         //NN INPUTS
@@ -176,9 +180,7 @@ var StateMain = {
     },
     mouseDown: function() {
         if (auto_mode == false) {
-            game.input.onDown.add(this.mouseDown, this);
             this.doJump();
-
         }
     },
     doJump: function () {
@@ -218,13 +220,14 @@ var StateMain = {
     },
     pause: function(){
         game.paused = true;
+        if(typeof this.menu == 'object'){
+            this.menu.destroy();        //if menu exists delete it and create new one
+        }
         this.menu = game.add.sprite(game.width/2,game.height/2,"menu");
         this.menu.bringToTop();
         this.menu.anchor.set(0.5,0.5);
-
         this.menu.inputEnabled = true;
         this.menu.events.onInputDown.add(this.un_pause, this);
-        //game.input.onDown.add(this.un_pause, self);
     },
     un_pause: function() {
         if (game.paused) {
@@ -232,7 +235,7 @@ var StateMain = {
             if(game.input.y > 200){
                 //console.log("automod");
                 if(!training_complete) {
-                    console.log("","Training using Data set of "+ trainingData.length +" elements" );
+                    console.log("","Training using Data set of "+ trainingData.length +" elements..." );
                     this.train_nn();
                     training_complete=true;
                 }
@@ -246,11 +249,12 @@ var StateMain = {
                 auto_mode = false;
                 this.points = 0;
             }
-
-            //add listener
-            game.input.onDown.add(this.mouseDown, this);
             //destroy sprite
             this.menu.destroy();
+            //add listener to jump in manual mode
+            game.input.onDown.add(this.mouseDown, this);
+            spaceKey.onDown.add(this.mouseDown, this);
+
         }
     },
 }

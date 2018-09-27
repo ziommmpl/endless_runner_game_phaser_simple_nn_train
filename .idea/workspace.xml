@@ -27,8 +27,8 @@
       <file leaf-file-name="main.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/js/main.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="451">
-              <caret line="131" column="44" lean-forward="true" selection-start-line="131" selection-start-column="44" selection-end-line="131" selection-end-column="44" />
+            <state relative-caret-position="-1003">
+              <caret line="130" column="40" lean-forward="true" selection-start-line="130" selection-start-column="40" selection-end-line="130" selection-end-column="40" />
               <folding />
             </state>
           </provider>
@@ -46,11 +46,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>grass</find>
-      <find>sprite</find>
-      <find>gameOver</find>
-      <find>mouseDown</find>
-      <find>train</find>
       <find>on_air</find>
       <find>on_floor</find>
       <find>bullet_speed</find>
@@ -58,7 +53,6 @@
       <find>stay_on_air</find>
       <find>do_the_jump</find>
       <find>nn_trainer</find>
-      <find>onDown</find>
       <find>this.box_speed</find>
       <find>box_speed</find>
       <find>wallSpeed</find>
@@ -73,9 +67,15 @@
       <find>powerBar</find>
       <find>cons</find>
       <find>nn_output</find>
-      <find>text</find>
       <find>hero</find>
       <find>mountains1</find>
+      <find>pause</find>
+      <find>text</find>
+      <find>mouse</find>
+      <find>onDown</find>
+      <find>esckey</find>
+      <find>autok</find>
+      <find>un_pause</find>
     </findStrings>
     <replaceStrings>
       <replace>fitnessvar</replace>
@@ -209,12 +209,12 @@
       <workItem from="1535724414537" duration="2650000" />
       <workItem from="1536930789373" duration="36446000" />
       <workItem from="1537886567331" duration="17056000" />
-      <workItem from="1537979969181" duration="165000" />
+      <workItem from="1537979969181" duration="9435000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="109196000" />
+    <option name="totallyTimeSpent" value="118466000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -438,8 +438,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/js/main.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="451">
-          <caret line="131" column="44" lean-forward="true" selection-start-line="131" selection-start-column="44" selection-end-line="131" selection-end-column="44" />
+        <state relative-caret-position="-1003">
+          <caret line="130" column="40" lean-forward="true" selection-start-line="130" selection-start-column="40" selection-end-line="130" selection-end-column="40" />
           <folding />
         </state>
       </provider>
