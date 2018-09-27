@@ -66,22 +66,23 @@ var StateMain = {
         this.hero = game.add.sprite(game.width * .2, this.ground.y - 25, "hero",3);
 
         //text
-        text = game.add.text(0, 0, "  MOUSE CLICK/SPACEBAR TO JUMP, TO PAUSE PRESS ESC OR TEXT HERE"+
-            "\n\n  IN AUTO MODE USE LEFT/RIGHT ARROW TO CHANGE SPEED \n  DOWN ARROW TO RESET SPEED"
+        text = game.add.text(0, 0, "  MOUSE CLICK/SPACEBAR TO JUMP, TO PAUSE PRESS ESC OR CLICK/TOUCH ON TOP"+
+            "\n  IN AUTO MODE USE LEFT/RIGHT ARROW TO CHANGE SPEED \n  YOU CAN ALSO TOUCH ON LEFT/RIGHT SIDE TO CHANGE SPEED\n  DOWN ARROW TO RESET SPEED"
             , {font: "15px Arial", fill: "#000000", align: "left", tabs: 55 });
         text.anchor.setTo(0,0);
         text.inputEnabled = true;
         speedText = game.add.text(0, game.height, "", {font: "15px Arial", fill: "#ffffff", align: "left", tabs: 55 });
         speedText.anchor.setTo(0,1);
 
+        //text speed+/-
         speedDownText = game.add.text(game.width-100, game.height, "", {font: "15px Arial", fill: "#ffffff", align: "left", tabs: 55 });
         speedDownText.anchor.setTo(1,1);
         speedDownText.inputEnabled = true;
         speedUpText = game.add.text(game.width, game.height, "", {font: "15px Arial", fill: "#ffffff", align: "left", tabs: 55 });
         speedUpText.anchor.setTo(1,1);
         speedUpText.inputEnabled = true;
-        speedDownText.events.onInputDown.add(function () {if(timeValue>1.0){timeValue-=0.5;}}, this);
-        speedUpText.events.onInputDown.add(function () {if(timeValue<4.0){timeValue+=0.5;}}, this);
+        speedDownText.events.onInputDown.add(this.speed_down, this);
+        speedUpText.events.onInputDown.add(this.speed_up, this);
 
         //add key listener
         esckey = game.input.keyboard.addKey(Phaser.Keyboard.ESC);
@@ -93,10 +94,9 @@ var StateMain = {
         rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
         downKey = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
 
-        leftKey.onDown.add(function () {if(timeValue>1.0){timeValue-=0.5;}}, this);
-        rightKey.onDown.add(function () {if(timeValue<4.0){timeValue+=0.5;}}, this);
+        leftKey.onDown.add(this.speed_down, this);
+        rightKey.onDown.add(this.speed_up, this);
         downKey.onDown.add(function () {timeValue=1.0;}, this);
-
 
         //physics engine
         game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -131,7 +131,7 @@ var StateMain = {
         game.physics.arcade.collide(this.hero, this.blocks, this.gameOver);
         this.fitnessvar++;
         //restart blocks
-        var fchild = this.blocks.getChildAt(0);
+        fchild = this.blocks.getChildAt(0);
 
         //point counter
         if(Math.sign((game.width+fchild.x-this.hero.x))!=this.pointsbool && Math.sign((game.width+fchild.x-this.hero.x)) < 0 ){
@@ -144,32 +144,8 @@ var StateMain = {
             this.makeBlocks();
         }
 
-        //log numbers
-        if(auto_mode){
-            text.setStyle({font: "15px Arial", fill: "#005603", align: "left", tabs: 55 });
-            text.setText("  AUTO MODE"+
-                " \t SCORE: " + this.points+
-                " \t DIST: "+ Math.ceil((game.width+fchild.x+100),1,0)+
-                //" \n FITNESS: "+this.fitnessvar+
-                " \t BOX_SPEED: "+wallSpeed+
-                " \t NN_OUTPUT: " + Math.round( nn_output*100 ));
-            speedText.setText("  SPEED: " + (timeValue).toFixed(1)+"x");
-            speedDownText.setText("SPEED-");
-            speedUpText.setText("SPEED+");
-        }
-        else{
-            text.setStyle({font: "15px Arial", fill: "#720000", align: "left", tabs: 55 });
-            text.setText("  TRAINING"+
-                " \t SCORE: " + this.points+
-                " \t DIST: "+ Math.ceil((game.width+fchild.x+100),1,0)+
-                //" \n FITNESS: "+this.fitnessvar+
-                " \t BOX_SPEED: "+wallSpeed+
-                " \t OUTPUT: "+this.do_the_jump);
-
-            speedText.setText("");
-            speedDownText.setText("");
-            speedUpText.setText("");
-        }
+        //log all text data
+        this.gameLog();
 
         text.events.onInputDown.add(this.pause, this);
         // speedUpText.events.onInputDown.add(this.pause, this);
@@ -240,12 +216,58 @@ var StateMain = {
     //console.log("Forecast ","ON AIR %: "+ on_air );
     return nn_output >= 0.5;
     },
+    gameLog: function(){
+        //log numbers
+        if(auto_mode){
+            text.setStyle({font: "15px Arial", fill: "#005603", align: "left", tabs: 55 });
+            text.setText("  AUTO MODE"+
+                " \t SCORE: " + this.points+
+                " \t DIST: "+ Math.ceil((game.width+fchild.x+100),1,0)+
+                //" \n FITNESS: "+this.fitnessvar+
+                " \t BOX_SPEED: "+wallSpeed+
+                " \t NN_OUTPUT: " + Math.round( nn_output*100 ));
+            speedText.setText("  SPEED: " + (timeValue).toFixed(1)+"x");
+            speedDownText.setText("SPEED-");
+            speedUpText.setText("SPEED+");
+        }
+        else{
+            text.setStyle({font: "15px Arial", fill: "#720000", align: "left", tabs: 55 });
+            text.setText("  TRAINING"+
+                " \t SCORE: " + this.points+
+                " \t DIST: "+ Math.ceil((game.width+fchild.x+100),1,0)+
+                //" \n FITNESS: "+this.fitnessvar+
+                " \t BOX_SPEED: "+wallSpeed+
+                " \t OUTPUT: "+this.do_the_jump);
+
+            speedText.setText("");
+            speedDownText.setText("");
+            speedUpText.setText("");
+        }
+    },
+    speed_down: function(){
+        if(timeValue>1.0 && auto_mode)
+            timeValue-=0.5;
+    },
+    speed_up: function () {
+        if(timeValue<4.0 && auto_mode)
+            timeValue+=0.5;
+    },
+    mobile_input: function(){
+        if(game.input.y<350){
+            if(game.input.x<200)
+                this.speed_down();
+            if(game.input.x>(game.width-200))
+                this.speed_up();
+        }
+        if(game.input.y<100 && game.input.x>200 && game.input.x<game.width-200){
+            this.pause();
+        }
+    },
     pause: function(){
         game.paused = true;
         if(typeof this.menu == 'object'){
             this.menu.destroy();        //if menu exists delete it and create new one
         }
-        game.add.text(0, game.height, "DUPECZKA", {font: "15px Arial", fill: "#ffffff", align: "left", tabs: 55 });
         this.menu = game.add.sprite(game.width/2,game.height/2,"menu");
         this.menu.bringToTop();
         this.menu.anchor.set(0.5,0.5);
@@ -263,6 +285,7 @@ var StateMain = {
                     training_complete=true;
                 }
                 auto_mode = true;
+                game.input.onDown.add(this.mobile_input, this);
             }
             else{
                 //console.log("manual mode");
@@ -275,6 +298,7 @@ var StateMain = {
             this.menu.destroy();
             //add listener to jump in manual mode
             game.input.onDown.add(this.mouseDown, this);
+            game.input.onDown.add(this.mobile_input, this);
             spaceKey.onDown.add(this.mouseDown, this);
             this.points = 0;
         }
