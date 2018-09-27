@@ -27,8 +27,8 @@
       <file leaf-file-name="main.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/js/main.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="329">
-              <caret line="260" column="9" lean-forward="true" selection-start-line="260" selection-start-column="9" selection-end-line="260" selection-end-column="9" />
+            <state relative-caret-position="340">
+              <caret line="20" column="50" lean-forward="true" selection-start-line="20" selection-start-column="50" selection-end-line="20" selection-end-column="50" />
               <folding />
             </state>
           </provider>
@@ -46,28 +46,11 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>training_complete</find>
-      <find>trainingData = []</find>
-      <find>trainingData</find>
-      <find>train_nn</find>
-      <find>power</find>
-      <find>this.power</find>
-      <find>powerBar</find>
-      <find>cons</find>
-      <find>nn_output</find>
-      <find>hero</find>
-      <find>mountains1</find>
-      <find>pause</find>
-      <find>esckey</find>
-      <find>autok</find>
-      <find>un_pause</find>
-      <find>points</find>
       <find>onDown</find>
       <find>timeValuetimeValue</find>
       <find>mouse</find>
       <find>text2</find>
       <find>text</find>
-      <find>speedDownText</find>
       <find>auto_mode</find>
       <find>fchild.x</find>
       <find>fchild</find>
@@ -76,6 +59,23 @@
       <find>box_displacement</find>
       <find>box_speed</find>
       <find>game.input</find>
+      <find>fitnessvar</find>
+      <find>points</find>
+      <find>on_air</find>
+      <find>get_op_from_trainedData</find>
+      <find>train_nn</find>
+      <find>speedDown</find>
+      <find>speed_text</find>
+      <find>speedDownText</find>
+      <find>speedUpText</find>
+      <find>esckey</find>
+      <find>wallSpeed</find>
+      <find>timeValue</find>
+      <find>_</find>
+      <find>speed_down</find>
+      <find>speed_up</find>
+      <find>speedUp</find>
+      <find>un_pause</find>
     </findStrings>
     <replaceStrings>
       <replace>fitnessvar</replace>
@@ -84,6 +84,18 @@
       <replace>do_the_jump</replace>
       <replace>this.do_the_jump</replace>
       <replace>speedText</replace>
+      <replace>getOutputFromTrainedData</replace>
+      <replace>trainNeuralNetwork</replace>
+      <replace>speed</replace>
+      <replace>speed_text</replace>
+      <replace>speed_down_text</replace>
+      <replace>speed_up_text</replace>
+      <replace>wall_speed</replace>
+      <replace>time_speed_value</replace>
+      <replace>speedDown</replace>
+      <replace>speedUp</replace>
+      <replace>mobileInput</replace>
+      <replace>unPause</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -110,7 +122,7 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="7">
     <option name="x" value="-8" />
     <option name="y" value="-8" />
     <option name="width" value="1936" />
@@ -212,15 +224,15 @@
       <workItem from="1537886567331" duration="17056000" />
       <workItem from="1537979969181" duration="20102000" />
       <workItem from="1538075546886" duration="5385000" />
-      <workItem from="1538084289668" duration="4905000" />
+      <workItem from="1538084289668" duration="6280000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="139423000" />
+    <option name="totallyTimeSpent" value="140798000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25266525" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -473,8 +485,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/js/main.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="329">
-          <caret line="260" column="9" lean-forward="true" selection-start-line="260" selection-start-column="9" selection-end-line="260" selection-end-column="9" />
+        <state relative-caret-position="340">
+          <caret line="20" column="50" lean-forward="true" selection-start-line="20" selection-start-column="50" selection-end-line="20" selection-end-column="50" />
           <folding />
         </state>
       </provider>

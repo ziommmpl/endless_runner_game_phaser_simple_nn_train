@@ -11,7 +11,7 @@ var nn_output;
 var trainingData=[];
 var auto_mode = false;
 var training_complete=false;
-var timeValue = 1.0;
+var time_speed_value = 1.0;
 
 var StateMain = {
     preload: function() {
@@ -32,13 +32,10 @@ var StateMain = {
     },
     create: function() {
         this.power = 28;
-        // this.points = 0;
-        this.fitnessvar=0;
+        // this.fitnessvar=0;
         this.pointsbool = 1;
         game.stage.backgroundColor = "#00ffff";
-
         game.time.advancedTiming = true;
-
 
         //run game if no focus
         this.game.stage.disableVisibilityChange = true;
@@ -46,10 +43,8 @@ var StateMain = {
         //mountains
         this.mountain1=game.add.tileSprite(0,0,game.width,game.height/2,"mountains1");
         this.mountain1.y=game.height-this.mountain1.height;
-
         this.mountain2=game.add.tileSprite(0,0,game.width,game.height/3,"mountains2");
         this.mountain2.y=game.height-this.mountain2.height;
-
         this.mountain1.autoScroll(-50,0);
         this.mountain2.autoScroll(-100,0);
 
@@ -71,20 +66,22 @@ var StateMain = {
             , {font: "15px Arial", fill: "#000000", align: "left", tabs: 55 });
         text.anchor.setTo(0,0);
         text.inputEnabled = true;
-        speedText = game.add.text(0, game.height, "", {font: "15px Arial", fill: "#ffffff", align: "left", tabs: 55 });
-        speedText.anchor.setTo(0,1);
+        text.events.onInputDown.add(this.pause, this);
 
         //text speed+/-
-        speedDownText = game.add.text(game.width-100, game.height, "", {font: "15px Arial", fill: "#ffffff", align: "left", tabs: 55 });
-        speedDownText.anchor.setTo(1,1);
-        speedDownText.inputEnabled = true;
-        speedUpText = game.add.text(game.width, game.height, "", {font: "15px Arial", fill: "#ffffff", align: "left", tabs: 55 });
-        speedUpText.anchor.setTo(1,1);
-        speedUpText.inputEnabled = true;
-        speedDownText.events.onInputDown.add(this.speed_down, this);
-        speedUpText.events.onInputDown.add(this.speed_up, this);
+        speed_text = game.add.text(0, game.height, "", {font: "15px Arial", fill: "#ffffff", align: "left", tabs: 55 });
+        speed_text.anchor.setTo(0,1);
+        speed_down_text = game.add.text(game.width-100, game.height, "", {font: "15px Arial", fill: "#ffffff", align: "left", tabs: 55 });
+        speed_down_text.anchor.setTo(1,1);
+        speed_down_text.inputEnabled = true;
+        speed_up_text = game.add.text(game.width, game.height, "", {font: "15px Arial", fill: "#ffffff", align: "left", tabs: 55 });
+        speed_up_text.anchor.setTo(1,1);
+        speed_up_text.inputEnabled = true;
+        //text speed+/- inputs
+        speed_down_text.events.onInputDown.add(this.speedDown, this);
+        speed_up_text.events.onInputDown.add(this.speedUp, this);
 
-        //add key listener
+        //add key listeners
         esckey = game.input.keyboard.addKey(Phaser.Keyboard.ESC);
         esckey.onDown.add(this.pause, this);
         //space to jump
@@ -93,10 +90,9 @@ var StateMain = {
         leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
         rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
         downKey = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
-
-        leftKey.onDown.add(this.speed_down, this);
-        rightKey.onDown.add(this.speed_up, this);
-        downKey.onDown.add(function () {timeValue=1.0;}, this);
+        leftKey.onDown.add(this.speedDown, this);
+        rightKey.onDown.add(this.speedUp, this);
+        downKey.onDown.add(function () {time_speed_value=1.0;}, this);
 
         //physics engine
         game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -124,12 +120,13 @@ var StateMain = {
     },
     update: function() {
         //game time map
-        game.time.desiredFps = 60/timeValue;
-        game.time.slowMotion = 1/timeValue;
+        game.time.desiredFps = 60/time_speed_value;
+        game.time.slowMotion = 1/time_speed_value;
 
         game.physics.arcade.collide(this.hero, this.ground);
         game.physics.arcade.collide(this.hero, this.blocks, this.gameOver);
-        this.fitnessvar++;
+        // this.fitnessvar++;
+
         //restart blocks
         fchild = this.blocks.getChildAt(0);
 
@@ -147,16 +144,13 @@ var StateMain = {
         //log all text data
         this.gameLog();
 
-        text.events.onInputDown.add(this.pause, this);
-        // speedUpText.events.onInputDown.add(this.pause, this);
-
         //NN INPUTS
         this.box_displacement = Math.ceil((game.width+fchild.x+100),1,0);
-        this.box_speed = wallSpeed;
+        this.box_speed = wall_speed;
 
         // Auto Jump
         if( auto_mode==true ){
-            if( this.get_op_from_trainedData( [this.box_displacement , this.box_speed] )  ){
+            if( this.getOutputFromTrainedData( [this.box_displacement , this.box_speed] )  ){
                 this.doJump();
             }
         }
@@ -191,30 +185,30 @@ var StateMain = {
         this.blocks.removeAll();
         this.blocks.x = game.width - this.blocks.width;
         this.blocks.y = this.ground.y-50;
-        wallSpeed = game.rnd.integerInRange(300,500);
+        wall_speed = game.rnd.integerInRange(300,500);
         var block = game.add.sprite(0, 0, "block");
         this.blocks.add(block);
         this.blocks.forEach(function(block){
             game.physics.enable(block, Phaser.Physics.ARCADE);
-            block.body.velocity.x =-wallSpeed;
+            block.body.velocity.x =-wall_speed;
         })
     },
     gameOver: function() {
         game.state.start("StateMain");
     },
     //NN Training
-    train_nn: function(){
-    nn_trainer.train(trainingData, {
-        rate: 0.0003,
-        iterations: 1000,
-        shuffle: true
-    })},
+    trainNeuralNetwork: function(){
+        nn_trainer.train(trainingData, {
+            rate: 0.0003,
+            iterations: 1000,
+            shuffle: true
+        })
+    },
     //NN Get output
-    get_op_from_trainedData: function(input_param){
-    nn_output = nn_network.activate(input_param);
-    var on_air = Math.round( nn_output*100 );
-    //console.log("Forecast ","ON AIR %: "+ on_air );
-    return nn_output >= 0.5;
+    getOutputFromTrainedData: function(input_param){
+        nn_output = nn_network.activate(input_param);
+        //console.log("Forecast ","ON AIR %: "+ Math.round( nn_output*100 ) );
+        return nn_output >= 0.5;
     },
     gameLog: function(){
         //log numbers
@@ -224,11 +218,11 @@ var StateMain = {
                 " \t SCORE: " + this.points+
                 " \t DIST: "+ Math.ceil((game.width+fchild.x+100),1,0)+
                 //" \n FITNESS: "+this.fitnessvar+
-                " \t BOX_SPEED: "+wallSpeed+
+                " \t BOX_SPEED: "+wall_speed+
                 " \t NN_OUTPUT: " + Math.round( nn_output*100 ));
-            speedText.setText("  SPEED: " + (timeValue).toFixed(1)+"x");
-            speedDownText.setText("SPEED-");
-            speedUpText.setText("SPEED+");
+            speed_text.setText("  SPEED: " + (time_speed_value).toFixed(1)+"x");
+            speed_down_text.setText("SPEED-");
+            speed_up_text.setText("SPEED+");
         }
         else{
             text.setStyle({font: "15px Arial", fill: "#720000", align: "left", tabs: 55 });
@@ -236,28 +230,28 @@ var StateMain = {
                 " \t SCORE: " + this.points+
                 " \t DIST: "+ Math.ceil((game.width+fchild.x+100),1,0)+
                 //" \n FITNESS: "+this.fitnessvar+
-                " \t BOX_SPEED: "+wallSpeed+
+                " \t BOX_SPEED: "+wall_speed+
                 " \t OUTPUT: "+this.do_the_jump);
 
-            speedText.setText("");
-            speedDownText.setText("");
-            speedUpText.setText("");
+            speed_text.setText("");
+            speed_down_text.setText("");
+            speed_up_text.setText("");
         }
     },
-    speed_down: function(){
-        if(timeValue>1.0 && auto_mode)
-            timeValue-=0.5;
+    speedDown: function(){
+        if(time_speed_value>1.0 && auto_mode)
+            time_speed_value-=0.5;
     },
-    speed_up: function () {
-        if(timeValue<4.0 && auto_mode)
-            timeValue+=0.5;
+    speedUp: function () {
+        if(time_speed_value<4.0 && auto_mode)
+            time_speed_value+=0.5;
     },
-    mobile_input: function(){
+    mobileInput: function(){
         if(game.input.y<350){
             if(game.input.x<200)
-                this.speed_down();
+                this.speedDown();
             if(game.input.x>(game.width-200))
-                this.speed_up();
+                this.speedUp();
         }
         if(game.input.y<100 && game.input.x>200 && game.input.x<game.width-200){
             this.pause();
@@ -272,33 +266,33 @@ var StateMain = {
         this.menu.bringToTop();
         this.menu.anchor.set(0.5,0.5);
         this.menu.inputEnabled = true;
-        this.menu.events.onInputDown.add(this.un_pause, this);
+        this.menu.events.onInputDown.add(this.unPause, this);
     },
-    un_pause: function() {
+    unPause: function() {
         if (game.paused) {
             game.paused = false;
             if(game.input.y > 200){
                 //console.log("automod");
                 if(!training_complete) {
                     console.log("","Training using Data set of "+ trainingData.length +" elements..." );
-                    this.train_nn();
+                    this.trainNeuralNetwork();
                     training_complete=true;
                 }
                 auto_mode = true;
-                game.input.onDown.add(this.mobile_input, this);
+                game.input.onDown.add(this.mobileInput, this);
             }
             else{
                 //console.log("manual mode");
                 training_complete=false;
                 trainingData = [];
                 auto_mode = false;
-                timeValue=1.0;
+                time_speed_value=1.0;
             }
             //destroy sprite
             this.menu.destroy();
             //add listener to jump in manual mode
             game.input.onDown.add(this.mouseDown, this);
-            game.input.onDown.add(this.mobile_input, this);
+            game.input.onDown.add(this.mobileInput, this);
             spaceKey.onDown.add(this.mouseDown, this);
             this.points = 0;
         }
