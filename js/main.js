@@ -1,23 +1,9 @@
 var game;
-window.onload = function()
-{
-    isMobile=navigator.userAgent.indexOf("Mobile");
-
-    if (isMobile==-1)
-    {
-        game=new Phaser.Game(640,400,Phaser.AUTO,"ph_game");
-    }
-    else
-    {
-        game=new Phaser.Game(window.innerWidth,window.innerHeight,Phaser.AUTO,"ph_game");
-        console.log("Mobile");
-    }
-
+window.onload = function(){
+game=new Phaser.Game(640,400,Phaser.AUTO,"ph_game");
     game.state.add("StateMain",StateMain);
     game.state.start("StateMain");
 }
-
-
 //NN
 var nn_network;
 var nn_trainer;
@@ -25,7 +11,7 @@ var nn_output;
 var trainingData=[];
 var auto_mode = false;
 var training_complete=false;
-
+var timeValue = 1.0;
 
 var StateMain = {
     preload: function() {
@@ -46,10 +32,13 @@ var StateMain = {
     },
     create: function() {
         this.power = 28;
-        this.points = 0;
+        // this.points = 0;
         this.fitnessvar=0;
         this.pointsbool = 1;
         game.stage.backgroundColor = "#00ffff";
+
+        game.time.advancedTiming = true;
+
 
         //run game if no focus
         this.game.stage.disableVisibilityChange = true;
@@ -77,9 +66,14 @@ var StateMain = {
         this.hero = game.add.sprite(game.width * .2, this.ground.y - 25, "hero",3);
 
         //text
-        text = game.add.text(0, 0, "  MOUSE CLICK/SPACEBAR TO JUMP, TO PAUSE PRESS ESC OR TEXT HERE", {font: "15px Arial", fill: "#000000", align: "left", tabs: 55 });
+        text = game.add.text(0, 0, "  MOUSE CLICK/SPACEBAR TO JUMP, TO PAUSE PRESS ESC OR TEXT HERE"+
+            "\n\n  IN AUTO MODE USE LEFT/RIGHT ARROW TO CHANGE SPEED \n  DOWN ARROW TO RESET SPEED"
+            , {font: "15px Arial", fill: "#000000", align: "left", tabs: 55 });
         text.anchor.setTo(0,0);
         text.inputEnabled = true;
+        text.inputEnabled = true;
+        text2 = game.add.text(0, game.height, "", {font: "15px Arial", fill: "#ffffff", align: "left", tabs: 55 });
+        text2.anchor.setTo(0,1);
 
 
         //add key listener
@@ -87,6 +81,14 @@ var StateMain = {
         esckey.onDown.add(this.pause, this);
         //space to jump
         spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+        //auto mode game speed
+        leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
+        rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
+        downKey = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
+
+        leftKey.onDown.add(function () {if(timeValue>1.0){timeValue-=0.5;}}, this);
+        rightKey.onDown.add(function () {if(timeValue<4.0){timeValue+=0.5;}}, this);
+        downKey.onDown.add(function () {timeValue=1.0;}, this);
 
         //physics engine
         game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -106,7 +108,6 @@ var StateMain = {
         this.makeBlocks();
 
         this.pause();
-
         // Neural Network - create perceptron
         if(!auto_mode) {
             nn_network = new synaptic.Architect.Perceptron(2, 6, 6, 1);
@@ -114,6 +115,10 @@ var StateMain = {
         }
     },
     update: function() {
+        game.time.desiredFps = 60/timeValue;
+        game.time.slowMotion = 1/timeValue;
+
+
         game.physics.arcade.collide(this.hero, this.ground);
         game.physics.arcade.collide(this.hero, this.blocks, this.gameOver);
         this.fitnessvar++;
@@ -134,20 +139,25 @@ var StateMain = {
 
         //log numbers
         if(auto_mode){
+            text.setStyle({font: "15px Arial", fill: "#005603", align: "left", tabs: 55 });
             text.setText("  AUTO MODE"+
                 " \t SCORE: " + this.points+
                 " \t DIST: "+ Math.ceil((game.width+fchild.x+100),1,0)+
                 //" \n FITNESS: "+this.fitnessvar+
                 " \t BOX_SPEED: "+wallSpeed+
                 " \t NN_OUTPUT: " + Math.round( nn_output*100 ));
+            text2.setText("  SPEED: " + (timeValue).toFixed(1)+"x");
         }
         else{
+            text.setStyle({font: "15px Arial", fill: "#720000", align: "left", tabs: 55 });
             text.setText("  TRAINING"+
                 " \t SCORE: " + this.points+
                 " \t DIST: "+ Math.ceil((game.width+fchild.x+100),1,0)+
                 //" \n FITNESS: "+this.fitnessvar+
                 " \t BOX_SPEED: "+wallSpeed+
                 " \t OUTPUT: "+this.do_the_jump);
+
+            text2.setText("");
         }
 
         text.events.onInputDown.add(this.pause, this);
@@ -223,6 +233,7 @@ var StateMain = {
         if(typeof this.menu == 'object'){
             this.menu.destroy();        //if menu exists delete it and create new one
         }
+        game.add.text(0, game.height, "DUPECZKA", {font: "15px Arial", fill: "#ffffff", align: "left", tabs: 55 });
         this.menu = game.add.sprite(game.width/2,game.height/2,"menu");
         this.menu.bringToTop();
         this.menu.anchor.set(0.5,0.5);
@@ -240,21 +251,20 @@ var StateMain = {
                     training_complete=true;
                 }
                 auto_mode = true;
-                this.points = 0;
             }
             else{
                 //console.log("manual mode");
                 training_complete=false;
                 trainingData = [];
                 auto_mode = false;
-                this.points = 0;
+                timeValue=1.0;
             }
             //destroy sprite
             this.menu.destroy();
             //add listener to jump in manual mode
             game.input.onDown.add(this.mouseDown, this);
             spaceKey.onDown.add(this.mouseDown, this);
-
+            this.points = 0;
         }
     },
 }
